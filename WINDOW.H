@@ -7,6 +7,7 @@ typedef struct window {
 	char name[80];
 	char *p;
 	char *buffer;
+	int active;
 } window_t;
 
 window_t *window_create(char *name, int startx, int endx, int starty, int endy, char attrib);
@@ -15,6 +16,6 @@ void move_string(window_t *w, char s_attrib);
 void window_close(window_t *w);
 void window_destroy(window_t *w);
 int get_error(void);
-char attrib_valid(void);
+char attrib_valid(char *type);
 void instructions(int number);
 #endif

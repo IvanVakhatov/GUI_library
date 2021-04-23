@@ -8,74 +8,28 @@
 int main(void)
 {
 	window_t *w1, *w2;
-	int ERROR1, ERROR2;
 	char W1_ATTRIB, W2_ATTRIB, STR1_ATTRIB, STR2_ATTRIB;
 	
-	clrscr();
-	instructions(3);
-	W1_ATTRIB = attrib_valid();
-	
-	clrscr();
-	instructions(4);
-	W2_ATTRIB = attrib_valid();
-	
-	clrscr();
-	instructions(5);
-	STR1_ATTRIB = attrib_valid();
-	
-	clrscr();
-	instructions(6);
-	STR2_ATTRIB = attrib_valid();
+	W1_ATTRIB = attrib_valid("W1");
+	W2_ATTRIB = attrib_valid("W2");
+	STR1_ATTRIB = attrib_valid("STR1");
+	STR2_ATTRIB = attrib_valid("STR2");
 	
 	clrscr();
 	w1 = window_create("WINDOW1", 10, 24, 0, 79, W1_ATTRIB);
-	ERROR1 = get_error();
-	w2 = window_create("WINDOW2", 3, 9, 45, 79, W2_ATTRIB);
-	ERROR2 = get_error();
+	w2 = window_create("WINDOW2", 3, 9, -45, 79, W2_ATTRIB);
+	
+	window_open(w1);
+	instructions(7);
+	move_string(w1, STR1_ATTRIB);
 	getch();
-	
-	if (ERROR1 == 0 && ERROR2 == 0)
-	{
-		window_open(w1);
-		getch();
-		instructions(7);
-		move_string(w1, STR1_ATTRIB);
-		getch();
-		window_open(w2);
-		getch();
-		move_string(w2, STR2_ATTRIB);
-		getch();
-		window_close(w2);
-		getch();
-		window_close(w1);
-		getch();
-		window_destroy(w2);
-		window_destroy(w1);
-	}
-	
-	else if (ERROR1 == 0)
-	{
-		window_open(w1);
-		getch();
-		instructions(7);
-		move_string(w1, STR1_ATTRIB);
-		getch();
-		window_close(w1);
-		getch();
-		window_destroy(w1);
-	}
-	
-	else if (ERROR2 == 0)
-	{
-		window_open(w2);
-		getch();
-		instructions(7);
-		move_string(w2, STR2_ATTRIB);
-		getch();
-		window_close(w2);
-		getch();
-		window_destroy(w2);
-	}
+	window_open(w2);
+	move_string(w2, STR2_ATTRIB);
+	getch();
+	window_close(w2);
+	window_close(w1);
+	window_destroy(w2);
+	window_destroy(w1);
 	return 0;
 }
 
