@@ -39,6 +39,8 @@
 #define BGBROWN 0x60
 #define BGLIGHTGRAY 0x70
 
+#define EMPTY_SYMB 0xB0
+
 /********************************************
  * x: value in the range [1, 23]            *
  * y: value in the range [1, 78]            *

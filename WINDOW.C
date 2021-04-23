@@ -80,82 +80,34 @@ window_t *window_create(char *name, int startx, int endx, int starty, int endy, 
 	return w;
 }
 
+/********************************************
+ * Shows the contents of the window         *
+ * 		If ACTIVE flag = 1                  *
+ *                                          *
+ * *w: previously created window object     *
+ *                                          *
+ * returns: nothing                         *
+ ********************************************/
 void window_open(window_t *w)
 {
 	if (w->active == 1)
 	{
 		get_vmem(w->startx, w->starty, w->endx, w->endy, w->buffer);
-		clear(w->startx, w->starty, w->endx, w->endy, 0xB0, w->attrib);
+		clear(w->startx, w->starty, w->endx, w->endy, EMPTY_SYMB, w->attrib);
 		borders(w->startx, w->starty, w->endx, w->endy, w->attrib);
 		name(w->startx, w->starty, w->endy, w->name, w->attrib);
 	}
 }
 
-void move_string(window_t *w, char s_attrib)
-{
-	if (w->active == 1)
-	{
-		char key = 0, *string = "IVAN";
-		int x = w->startx+5;
-		int y = w->starty+5;
-		
-		/* While ESC is not pressed */
-		while(key != 0x1b)
-		{
-			if(kbhit()) /* If a key has been pressed */
-			{
-				key = getch();
-				if(key == (char)0)
-				{
-					key = getch();
-					/* Key handling */
-					switch(key)
-					{
-						case 0x48: /*up key*/
-							x -= 1;
-							if(x < w->startx+1)
-							{
-								x = w->startx+1;
-							}
-							clear(w->startx+1, w->starty+1, w->endx-1, w->endy-1, 0xB0, w->attrib);
-							break;
-								
-						case 0x4d: /*right key*/
-							y += 2;
-							if(y > w->endy-len_str(string))
-							{
-								y = w->endy-len_str(string);
-							}
-							clear(w->startx+1, w->starty+1, w->endx-1, w->endy-1, 0xB0, w->attrib);
-							break;
-
-						case 0x50: /*down key*/
-							x += 1;
-							if(x > w->endx-1)
-							{
-								x = w->endx-1;
-							}
-							clear(w->startx+1, w->starty+1, w->endx-1, w->endy-1, 0xB0, w->attrib);
-							break;
-								
-						case 0x4b: /*left key*/
-							y -= 2;
-							if(y < w->starty+1)
-							{
-								y = w->starty+1;
-							}
-							clear(w->startx+1, w->starty+1, w->endx-1, w->endy-1, 0xB0, w->attrib);
-							break;
-						default: /* other keys */
-							break;
-					}
-				}
-			}
-			write_string(x, y, string, s_attrib);
-		}
-	}
-}
-
+/********************************************
+ * Close the window by opening the          *
+ * initial state of the window              *
+ * 		If ACTIVE flag = 1                  *
+ *                                          *
+ * *w: previously created window object     *
+ *                                          *
+ * returns: nothing                         *
+ ********************************************/
 void window_close(window_t *w)
 {
 	if (w->active == 1)
@@ -165,17 +117,122 @@ void window_close(window_t *w)
 	}
 }
 
+/********************************************
+ * Clears the memory of window object       *
+ *                                          *
+ * *w: previously created window object     *
+ *                                          *
+ * returns: nothing                         *
+ ********************************************/
 void window_destroy(window_t *w)
 {
 	free(w->p);
 	free(w);	
 }
 
+/********************************************
+ * If something went wrong creating a       *
+ * window object, you would know it!        *
+ *                                          *
+ *                                          *
+ *                                          *
+ * returns: error code (if errors)          *
+ ********************************************/
 int get_error(void)
 {
 	return INTERRUPT;
 }
 
+/********************************************
+ * Allow to move the string in rect window  *
+ * (using UP, DOWN, LEFT, RIGHT arrows)     *
+ * 		If ACTIVE flag = 1                  *
+ *                                          *
+ * *string: a string of 1 to 77 symbols long*
+ * *w: previously created window object     *
+ * s_attrib: a bit flag (color in CAPITAL)  *
+ *                                          *
+ * returns: nothing                         *
+ ********************************************/
+void move_string(char *string, window_t *w, char s_attrib)
+{
+	if (w->active == 1)
+	{
+		if (len_str(string) < (w->endy - 2))
+		{
+			char key = 0;
+			int x = w->startx+1;
+			int y = w->starty+1;
+			
+			/* While ESC is not pressed */
+			while(key != 0x1b)
+			{
+				/* If any key has been pressed */
+				if(kbhit())
+				{
+					key = getch();
+					if(key == (char)0)
+					{
+						key = getch();
+						/* Key handling */
+						switch(key)
+						{
+							case 0x48: /*up arrow*/
+								x -= 1;
+								if(x < w->startx+1)
+								{
+									x = w->startx+1;
+								}
+								clear(w->startx+1, w->starty+1, w->endx-1, w->endy-1, 0xB0, w->attrib);
+								break;
+									
+							case 0x4d: /*right arrow*/
+								y += 2;
+								if(y > w->endy-len_str(string))
+								{
+									y = w->endy-len_str(string);
+								}
+								clear(w->startx+1, w->starty+1, w->endx-1, w->endy-1, 0xB0, w->attrib);
+								break;
+
+							case 0x50: /*down arrow*/
+								x += 1;
+								if(x > w->endx-1)
+								{
+									x = w->endx-1;
+								}
+								clear(w->startx+1, w->starty+1, w->endx-1, w->endy-1, 0xB0, w->attrib);
+								break;
+									
+							case 0x4b: /*left arrow*/
+								y -= 2;
+								if(y < w->starty+1)
+								{
+									y = w->starty+1;
+								}
+								clear(w->startx+1, w->starty+1, w->endx-1, w->endy-1, 0xB0, w->attrib);
+								break;
+							default: /* other keys */
+								break;
+						}
+					}
+				}
+				write_string(x, y, string, s_attrib);
+			}
+			getch();
+		}
+	}
+}
+
+/********************************************
+ * Allows user to enter color and background*
+ * color values of symbols. Checks the      *
+ * entered value and handles errors         *
+ *                                          *
+ * *type: object type for the attribute     *
+ *                                          *
+ * returns: final attrib for symbols        *
+ ********************************************/
 char attrib_valid(char *type)
 {
 	char *COLORS[] = {"BLACK", "BLUE", "GREEN", "CYAN", "RED",
@@ -187,8 +244,7 @@ char attrib_valid(char *type)
 	char *COLOR =  (char*)malloc(100);
 	char *BGCOLOR = (char*)malloc(100);
 	char col, bgcol, attrib;
-	int i;
-	int col_len = sizeof(COLORS)/sizeof(COLORS[0]);
+	int i, col_len = sizeof(COLORS)/sizeof(COLORS[0]);
 	int bgcol_len = sizeof(BGCOLORS)/sizeof(BGCOLORS[0]);
 
 	clrscr();
@@ -210,7 +266,7 @@ char attrib_valid(char *type)
 		col = 0x15;
 		for(i = 0; i < col_len; ++i)
 		{
-			if(!strcmp(COLORS[i], COLOR))
+			if(strcmp(COLORS[i], COLOR) == 0)
 			{
 				if (strcmp(COLOR, "BLACK") == 0)
 					col = BLACK;
@@ -246,15 +302,14 @@ char attrib_valid(char *type)
 					col = WHITE;
 			}
 		}
-		
 		if (col != 0x15)
 		{
-			printf("OK!\n");
+			printf("\nOK! Selected color: %s\n\n", COLOR);
 			break;
 		}
 		else
 		{
-			printf("INVALID COLOR VALUE! Try again.\n");
+			printf("\nINVALID COLOR VALUE! Try again.\n\n");
 		}
 	}
 	
@@ -267,7 +322,7 @@ char attrib_valid(char *type)
 		bgcol = 0x7E;			
 		for(i = 0; i < bgcol_len; ++i)
 		{
-			if(!strcmp(BGCOLORS[i], BGCOLOR))
+			if(strcmp(BGCOLORS[i], BGCOLOR) == 0)
 			{
 				if (strcmp(BGCOLOR, "BGBLACK") == 0)
 					bgcol = BGBLACK;
@@ -287,25 +342,30 @@ char attrib_valid(char *type)
 					bgcol = BGLIGHTGRAY;
 			}
 		}
-		
 		if (bgcol != 0x7E)
 		{
-			printf("OK!\n");
+			printf("\nOK! Selected background color: %s\n\n", BGCOLOR);
 			break;
 		}
 		else
 		{
-			printf("INVALID BACKGROUND COLOR VALUE! Try again.\n");
+			printf("\nINVALID BACKGROUND COLOR VALUE! Try again.\n\n");
 		}
 	}
 	
 	attrib = col | bgcol;
-	/*getch();*/
 	free(COLOR);
 	free(BGCOLOR);
 	return attrib;
 }
 
+/********************************************
+ * Prints the help messages for user        *
+ *                                          *
+ * number: utility variable for SWITCH      *
+ *                                          *
+ * returns: nothing                         *
+ ********************************************/
 void instructions(int number)
 {
 	switch(number)
